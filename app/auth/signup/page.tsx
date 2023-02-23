@@ -4,8 +4,8 @@ import { auth } from '@/utils/firebase'
 import { loginAtom } from '@/utils/store'
 import { useToast } from '@chakra-ui/react'
 import {
+  createUserWithEmailAndPassword,
   fetchSignInMethodsForEmail,
-  signInWithEmailAndPassword,
 } from 'firebase/auth'
 import { useAtom } from 'jotai'
 import { useRouter } from 'next/navigation'
@@ -24,8 +24,8 @@ export default function LoginPage() {
   const [passwordValidation, setPasswordValidation] = useState(false)
 
   const pageDescription = {
-    title: 'Log in to your account',
-    subtitle: "Don't have an account?",
+    title: 'Create a new account',
+    subtitle: 'Already have an account?',
   }
 
   const handleSubmit = async (email: string, password: string) => {
@@ -40,23 +40,18 @@ export default function LoginPage() {
       const users = await fetchSignInMethodsForEmail(auth, email)
 
       if (users.length === 0) {
+        await createUserWithEmailAndPassword(auth, email, password)
+        setLogin({ email: '', password: '' })
+        router.replace('/')
+      } else {
         toast({
           position: 'top',
-          title: "User doesn't exist. Please sign up.",
+          title: 'User already exist. Please login with your account.',
           status: 'error',
           isClosable: true,
           duration: 3000,
         })
-      } else {
-        try {
-          await signInWithEmailAndPassword(auth, email, password)
-          setLogin({ email: '', password: '' })
-        } catch (error: any) {
-          if (error.code === 'auth/wrong-password') {
-            setLogin({ ...login, password: '' })
-            setPasswordValidation(true)
-          }
-        }
+        setLogin({ email: '', password: '' })
       }
     }
   }
@@ -71,9 +66,9 @@ export default function LoginPage() {
     <>
       <LoginForm
         pageDescription={pageDescription}
-        title="Sign in"
-        forwardTo="Sing up"
-        forwardToPath="/auth/signup"
+        title="Create new account"
+        forwardTo="Sing in"
+        forwardToPath="/auth/login"
         emailValidation={emailValidation}
         setEmailValidation={setEmailValidation}
         passwordValidation={passwordValidation}

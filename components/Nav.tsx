@@ -1,28 +1,51 @@
 'use client'
 import { auth } from '@/utils/firebase'
-import { Button, HStack, Link as CharLink } from '@chakra-ui/react'
+import { MoonIcon, SunIcon } from '@chakra-ui/icons'
+import {
+  Button,
+  HStack,
+  IconButton,
+  Link as CharLink,
+  useColorMode,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import Link from 'next/link'
 import { useAuthState } from 'react-firebase-hooks/auth'
 
 export const NavBar = () => {
+  const { toggleColorMode } = useColorMode()
   const [user] = useAuthState(auth)
 
   return (
     <HStack justifyContent={'space-between'} alignItems="center">
-      <CharLink href={'/'}>Logo</CharLink>
-      <div>
+      <CharLink style={{ fontSize: '2rem', textDecoration: 'none' }} href={'/'}>
+        Oddinary
+      </CharLink>
+      <HStack gap={'1'}>
+        <IconButton
+          aria-label={'theme-switcher'}
+          bg={'transparent'}
+          size="lg"
+          icon={useColorModeValue(<MoonIcon />, <SunIcon />)}
+          onClick={toggleColorMode}
+        />
         {user ? (
-          <Button rounded={'full'} px="4" onClick={() => auth.signOut()}>
+          <Button
+            rounded={'lg'}
+            size={'md'}
+            onClick={() => auth.signOut()}
+            variant="outline"
+          >
             Sign Out
           </Button>
         ) : (
-          <Link href={'auth/login'}>
-            <Button rounded={'full'} px="4">
+          <Link href={'auth/signup'}>
+            <Button rounded={'lg'} size={'md'} variant="outline">
               Join Now
             </Button>
           </Link>
         )}
-      </div>
+      </HStack>
     </HStack>
   )
 }

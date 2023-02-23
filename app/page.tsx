@@ -9,11 +9,12 @@ export default function Home() {
     <>
       {user ? (
         <div>
+          <h1>{auth.currentUser?.email}</h1>
           <h1>{auth.currentUser?.displayName}</h1>
           <img
             src={user.photoURL!}
-            alt='use photo'
-            referrerPolicy='no-referrer'
+            alt="use photo"
+            referrerPolicy="no-referrer"
           />
         </div>
       ) : (
