@@ -1,7 +1,7 @@
 'use client'
 import LoginForm from '@/components/LoginForm/LoginForm'
 import { auth } from '@/utils/firebase'
-import { loginAtom } from '@/utils/store'
+import { loginAtom, onSubmitAtom, onSubmitSuccessAtom } from '@/utils/store'
 import { useToast } from '@chakra-ui/react'
 import {
   fetchSignInMethodsForEmail,
@@ -23,12 +23,16 @@ export default function LoginPage() {
   const [emailValidation, setEmailValidation] = useState(false)
   const [passwordValidation, setPasswordValidation] = useState(false)
 
+  const [_onSubmit, setOnSubmit] = useAtom(onSubmitAtom)
+  const [_onSubmitSuccess, setSubmitScueess] = useAtom(onSubmitSuccessAtom)
+
   const pageDescription = {
     title: 'Log in to your account',
     subtitle: "Don't have an account?",
   }
 
   const handleSubmit = async (email: string, password: string) => {
+    setOnSubmit(true)
     if (
       login.email === '' ||
       !login.email.includes('@') ||
@@ -36,10 +40,13 @@ export default function LoginPage() {
     ) {
       setEmailValidation(true)
       setPasswordValidation(true)
+      setOnSubmit(false)
     } else {
       const users = await fetchSignInMethodsForEmail(auth, email)
 
       if (users.length === 0) {
+        setOnSubmit(false)
+        setLogin({ email: '', password: '' })
         toast({
           position: 'top',
           title: "User doesn't exist. Please sign up.",
@@ -49,9 +56,14 @@ export default function LoginPage() {
         })
       } else {
         try {
+          setSubmitScueess(true)
           await signInWithEmailAndPassword(auth, email, password)
+          setOnSubmit(false)
           setLogin({ email: '', password: '' })
+          router.replace('/')
         } catch (error: any) {
+          setSubmitScueess(false)
+          setOnSubmit(false)
           if (error.code === 'auth/wrong-password') {
             setLogin({ ...login, password: '' })
             setPasswordValidation(true)
@@ -62,10 +74,11 @@ export default function LoginPage() {
   }
 
   useEffect(() => {
+    setSubmitScueess(false)
     if (user) {
       router.replace('/')
     }
-  }, [user])
+  }, [])
 
   return (
     <>

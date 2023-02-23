@@ -1,5 +1,6 @@
 'use client'
 
+import Loader from '@/components/Loader'
 import { NavBar } from '@/components/Nav'
 import { auth } from '@/utils/firebase'
 import theme from '@/utils/theme'
@@ -8,7 +9,6 @@ import {
   ChakraProvider,
   ColorModeScript,
   Container,
-  Spinner,
 } from '@chakra-ui/react'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import './globals.css'
@@ -27,15 +27,7 @@ export default function RootLayout({
         <ColorModeScript initialColorMode={theme.config.initialColorMode} />
         <ChakraProvider theme={theme}>
           {loading ? (
-            <Box
-              width={'full'}
-              height={'100vh'}
-              display={'flex'}
-              alignItems={'center'}
-              justifyContent={'center'}
-            >
-              <Spinner size={'xl'} />
-            </Box>
+            <Loader />
           ) : (
             <Container mt={'4'} maxW={'8xl'}>
               <NavBar />

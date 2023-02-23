@@ -15,11 +15,13 @@ import { ChangeEvent, useRef } from 'react'
 import { HiEye, HiEyeOff } from 'react-icons/hi'
 
 type Props = {
+  handleSubmit: (email: string, password: string) => void
   passwordValidation: boolean
   setPasswordValidation: (value: boolean) => void
 }
 
 export const PasswordField = ({
+  handleSubmit,
   passwordValidation,
   setPasswordValidation,
 }: Props) => {
@@ -49,6 +51,11 @@ export const PasswordField = ({
             />
           </InputRightElement>
           <Input
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSubmit(login.email, login.password)
+              }
+            }}
             id="password"
             ref={inputRef}
             name="password"
