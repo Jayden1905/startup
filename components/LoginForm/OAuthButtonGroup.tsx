@@ -17,26 +17,26 @@ import { useRouter } from 'next/navigation'
 import { auth } from 'utils/firebase'
 import { FaceBookIcon, GitHubIcon, GoogleIcon } from './ProviderIcons'
 
-const providers = [
-  {
-    name: 'Google',
-    icon: <GoogleIcon boxSize="5" />,
-    provider: new GoogleAuthProvider(),
-  },
-  {
-    name: 'FaceBook',
-    icon: <FaceBookIcon boxSize="5" />,
-    provider: new FacebookAuthProvider(),
-  },
-  {
-    name: 'GitHub',
-    icon: <GitHubIcon boxSize="5" />,
-    provider: new GithubAuthProvider(),
-  },
-]
-
 export const OAuthButtonGroup = () => {
   const router = useRouter()
+
+  const providers = [
+    {
+      name: 'Google',
+      icon: <GoogleIcon boxSize="5" />,
+      provider: new GoogleAuthProvider(),
+    },
+    {
+      name: 'FaceBook',
+      icon: <FaceBookIcon boxSize="5" />,
+      provider: new FacebookAuthProvider(),
+    },
+    {
+      name: 'GitHub',
+      icon: <GitHubIcon boxSize="5" />,
+      provider: new GithubAuthProvider(),
+    },
+  ]
 
   function getProvider(providerId: string) {
     switch (providerId) {
@@ -62,7 +62,7 @@ export const OAuthButtonGroup = () => {
         const token = userCredential?.accessToken
         const photo = result.user.photoURL + '?height=500&access_token=' + token
         await updateProfile(auth?.currentUser!, { photoURL: photo })
-        router.refresh()
+        router.replace('/')
       }
 
       router.replace('/')

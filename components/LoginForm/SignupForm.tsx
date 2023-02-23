@@ -32,9 +32,13 @@ type Props = {
   passwordValidation: boolean
   setEmailValidation: (value: boolean) => void
   setPasswordValidation: (value: boolean) => void
+  displayName: string
+  setDisplayName: (value: string) => void
+  displayNameValidation: boolean
+  setDisplayNameValidation: (value: boolean) => void
 }
 
-export default function LoginForm({
+export default function SignupForm({
   pageDescription,
   title,
   forwardTo,
@@ -44,6 +48,10 @@ export default function LoginForm({
   passwordValidation,
   setEmailValidation,
   setPasswordValidation,
+  displayName,
+  setDisplayName,
+  displayNameValidation,
+  setDisplayNameValidation,
 }: Props) {
   const [login, setLogin] = useAtom(loginAtom)
 
@@ -81,9 +89,33 @@ export default function LoginForm({
         >
           <Stack spacing="6">
             <Stack spacing="5">
+              <FormControl isInvalid={displayNameValidation}>
+                <FormLabel htmlFor="displayName">Name</FormLabel>
+                <Input
+                  id="displayName"
+                  type="displayName"
+                  value={displayName}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                    if (e.target.value.length < 3) {
+                      setDisplayNameValidation(true)
+                    } else {
+                      setDisplayNameValidation(false)
+                    }
+                    setDisplayName(e.target.value)
+                  }}
+                />
+                {displayNameValidation && (
+                  <FormErrorMessage>Invalid username</FormErrorMessage>
+                )}
+              </FormControl>
               <FormControl isInvalid={emailValidation}>
                 <FormLabel htmlFor="email">Email</FormLabel>
                 <Input
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSubmit(login.email, login.password)
+                    }
+                  }}
                   id="email"
                   type="email"
                   value={login.email}

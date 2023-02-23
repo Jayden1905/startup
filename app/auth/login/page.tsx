@@ -59,6 +59,7 @@ const LoginPage = () => {
         try {
           setSubmitScueess(true)
           await signInWithEmailAndPassword(auth, email, password)
+
           setOnSubmit(false)
           setLogin({ email: '', password: '' })
           router.replace('/')

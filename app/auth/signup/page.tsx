@@ -1,21 +1,21 @@
 'use client'
 import withoutAuth from '@/components/auth/withoutAuth'
-import LoginForm from '@/components/LoginForm/LoginForm'
+import SignupForm from '@/components/LoginForm/SignupForm'
 import { auth } from '@/utils/firebase'
 import { loginAtom, onSubmitAtom, onSubmitSuccessAtom } from '@/utils/store'
 import { useToast } from '@chakra-ui/react'
 import {
   createUserWithEmailAndPassword,
   fetchSignInMethodsForEmail,
+  updateProfile,
 } from 'firebase/auth'
 import { useAtom } from 'jotai'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { useAuthState } from 'react-firebase-hooks/auth'
 
 const SignupPage = () => {
   const [login, setLogin] = useAtom(loginAtom)
-  const [user] = useAuthState(auth)
+  const [displayName, setDisplayName] = useState('')
 
   const router = useRouter()
 
@@ -23,6 +23,7 @@ const SignupPage = () => {
 
   const [emailValidation, setEmailValidation] = useState(false)
   const [passwordValidation, setPasswordValidation] = useState(false)
+  const [displayNameValidation, setDisplayNameValidation] = useState(false)
 
   const [_onSubmit, setOnSubmit] = useAtom(onSubmitAtom)
   const [_onSubmitSuccess, setSubmitScueess] = useAtom(onSubmitSuccessAtom)
@@ -37,10 +38,12 @@ const SignupPage = () => {
     if (
       login.email === '' ||
       !login.email.includes('@') ||
-      login.password === ''
+      login.password === '' ||
+      displayName === ''
     ) {
       setEmailValidation(true)
       setPasswordValidation(true)
+      setDisplayNameValidation(true)
       setOnSubmit(false)
     } else {
       const users = await fetchSignInMethodsForEmail(auth, email)
@@ -48,9 +51,19 @@ const SignupPage = () => {
       if (users.length === 0) {
         try {
           setSubmitScueess(true)
-          await createUserWithEmailAndPassword(auth, email, password)
+          const result = await createUserWithEmailAndPassword(
+            auth,
+            email,
+            password
+          )
+
           setOnSubmit(false)
+          await updateProfile(result.user, {
+            displayName: displayName,
+          })
+
           setLogin({ email: '', password: '' })
+          setDisplayName('')
           router.replace('/')
         } catch (error) {
           console.log(error)
@@ -66,6 +79,7 @@ const SignupPage = () => {
           duration: 3000,
         })
         setLogin({ email: '', password: '' })
+        setDisplayName('')
       }
     }
   }
@@ -76,7 +90,7 @@ const SignupPage = () => {
 
   return (
     <>
-      <LoginForm
+      <SignupForm
         pageDescription={pageDescription}
         title="Create new account"
         forwardTo="Sing in"
@@ -86,6 +100,10 @@ const SignupPage = () => {
         passwordValidation={passwordValidation}
         setPasswordValidation={setPasswordValidation}
         handleSubmit={handleSubmit}
+        displayName={displayName}
+        setDisplayName={setDisplayName}
+        displayNameValidation={displayNameValidation}
+        setDisplayNameValidation={setDisplayNameValidation}
       />
     </>
   )
