@@ -2,6 +2,7 @@
 import { OAuthButtonGroup } from '@/components/LoginForm/OAuthButtonGroup'
 import { PasswordField } from '@/components/LoginForm/PasswordField'
 import { loginAtom, onSubmitAtom, onSubmitSuccessAtom } from '@/utils/store'
+import { CheckIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
@@ -131,7 +132,7 @@ export default function LoginForm({
                 colorScheme="blue"
                 onClick={() => handleSubmit(login.email, login.password)}
               >
-                {onSubmitSuccess ? 'Success' : title}
+                {onSubmitSuccess ? <CheckIcon /> : title}
               </Button>
               <HStack>
                 <Divider />

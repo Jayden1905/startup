@@ -1,4 +1,5 @@
 'use client'
+import withoutAuth from '@/components/auth/withoutAuth'
 import LoginForm from '@/components/LoginForm/LoginForm'
 import { auth } from '@/utils/firebase'
 import { loginAtom, onSubmitAtom, onSubmitSuccessAtom } from '@/utils/store'
@@ -12,7 +13,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useAuthState } from 'react-firebase-hooks/auth'
 
-export default function LoginPage() {
+const SignupPage = () => {
   const [login, setLogin] = useAtom(loginAtom)
   const [user] = useAuthState(auth)
 
@@ -59,7 +60,7 @@ export default function LoginPage() {
         setOnSubmit(false)
         toast({
           position: 'top',
-          title: 'User already exist. Please login with your account.',
+          title: 'User already exist. Please sign in with your account.',
           status: 'error',
           isClosable: true,
           duration: 3000,
@@ -71,10 +72,6 @@ export default function LoginPage() {
 
   useEffect(() => {
     setSubmitScueess(false)
-
-    if (user) {
-      router.replace('/')
-    }
   }, [])
 
   return (
@@ -93,3 +90,5 @@ export default function LoginPage() {
     </>
   )
 }
+
+export default withoutAuth(SignupPage)

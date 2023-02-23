@@ -1,4 +1,5 @@
 'use client'
+import withoutAuth from '@/components/auth/withoutAuth'
 import LoginForm from '@/components/LoginForm/LoginForm'
 import { auth } from '@/utils/firebase'
 import { loginAtom, onSubmitAtom, onSubmitSuccessAtom } from '@/utils/store'
@@ -12,7 +13,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useAuthState } from 'react-firebase-hooks/auth'
 
-export default function LoginPage() {
+const LoginPage = () => {
   const [login, setLogin] = useAtom(loginAtom)
   const [user] = useAuthState(auth)
 
@@ -75,9 +76,6 @@ export default function LoginPage() {
 
   useEffect(() => {
     setSubmitScueess(false)
-    if (user) {
-      router.replace('/')
-    }
   }, [])
 
   return (
@@ -96,3 +94,5 @@ export default function LoginPage() {
     </>
   )
 }
+
+export default withoutAuth(LoginPage)
