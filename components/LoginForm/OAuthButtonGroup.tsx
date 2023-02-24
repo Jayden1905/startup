@@ -58,14 +58,14 @@ export const OAuthButtonGroup = () => {
     try {
       const result = await signInWithPopup(auth, provider)
       if (provider.providerId === 'facebook.com') {
+        router.push('/')
         const userCredential = FacebookAuthProvider.credentialFromResult(result)
         const token = userCredential?.accessToken
         const photo = result.user.photoURL + '?height=500&access_token=' + token
         await updateProfile(auth?.currentUser!, { photoURL: photo })
-        router.replace('/')
       }
 
-      router.replace('/')
+      router.push('/')
     } catch (error: any) {
       if (error.code === 'auth/account-exists-with-different-credential') {
         const email = error.customData.email
@@ -90,7 +90,7 @@ export const OAuthButtonGroup = () => {
 
         const result = await signInWithRedirect(auth, linkedProvider)
         linkWithCredential(result, pendingCred)
-        router.replace('/')
+        router.push('/')
       }
     }
   }

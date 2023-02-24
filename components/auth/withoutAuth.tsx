@@ -24,7 +24,7 @@ const withoutAuth = (WrappedComponent: NextPage) => {
     useEffect(() => {
       if (user) {
         setAuthStatus('authenticated')
-        router.replace('/')
+        router.push('/')
       } else {
         setAuthStatus('unauthenticated')
       }

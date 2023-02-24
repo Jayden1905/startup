@@ -62,7 +62,7 @@ const LoginPage = () => {
 
           setOnSubmit(false)
           setLogin({ email: '', password: '' })
-          router.replace('/')
+          router.push('/')
         } catch (error: any) {
           setSubmitScueess(false)
           setOnSubmit(false)

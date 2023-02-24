@@ -64,7 +64,7 @@ const SignupPage = () => {
 
           setLogin({ email: '', password: '' })
           setDisplayName('')
-          router.replace('/')
+          router.push('/')
         } catch (error) {
           console.log(error)
         }

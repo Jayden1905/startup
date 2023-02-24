@@ -26,15 +26,19 @@ export const NavBar = () => {
 
   return (
     <HStack justifyContent={'space-between'} alignItems="center">
-      <CharLink style={{ fontSize: '2rem', textDecoration: 'none' }} href={'/'}>
+      <CharLink
+        style={{ fontSize: '1.5rem', textDecoration: 'none' }}
+        href={'/'}
+      >
         Oddinary
       </CharLink>
-      <HStack gap={'1'}>
+      <HStack gap={'2'}>
         <IconButton
           aria-label={'theme-switcher'}
-          size="lg"
+          size={'lg'}
           icon={useColorModeValue(<MoonIcon />, <SunIcon />)}
           onClick={toggleColorMode}
+          variant={'ghost'}
         />
         {user ? (
           <Menu>
@@ -42,27 +46,28 @@ export const NavBar = () => {
               <Avatar
                 name={auth.currentUser?.displayName!}
                 src={auth.currentUser?.photoURL!}
+                size="sm"
               />
             </MenuButton>
-            <MenuList>
+            <MenuList fontSize={'15px'}>
               <MenuItem>
                 <MdSwitchAccount
-                  style={{ fontSize: '20px', marginRight: '10px' }}
+                  style={{ fontSize: '15px', marginRight: '12px' }}
                 />
                 Account
               </MenuItem>
               <MenuItem>
-                <MdPayment style={{ fontSize: '20px', marginRight: '10px' }} />
-                Payments
+                <MdPayment style={{ fontSize: '15px', marginRight: '12px' }} />
+                Billing
               </MenuItem>
               <MenuItem
                 onClick={() => {
                   auth.signOut()
-                  router.replace('/auth/login')
+                  router.push('/auth/login')
                 }}
               >
                 <MdOutlineLogout
-                  style={{ fontSize: '20px', marginRight: '10px' }}
+                  style={{ fontSize: '15px', marginRight: '12px' }}
                 />
                 Log Out
               </MenuItem>
@@ -70,12 +75,7 @@ export const NavBar = () => {
           </Menu>
         ) : (
           <Link href={'auth/signup'}>
-            <Button
-              rounded={'full'}
-              size={'lg'}
-              fontSize={'md'}
-              variant="outline"
-            >
+            <Button colorScheme={'blue'} size="sm" rounded={'md'}>
               Join Now
             </Button>
           </Link>

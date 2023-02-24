@@ -1,10 +1,10 @@
-import UserDisplay from '@/components/pages/UserDisplay'
+import HomePage from '@/components/pages/HomePage'
 
 const Home = () => {
   return (
-    <>
-      <UserDisplay />
-    </>
+    <div>
+      <HomePage />
+    </div>
   )
 }
 

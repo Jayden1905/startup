@@ -26,7 +26,7 @@ const withAuth = (WrappedComponent: NextPage) => {
         setAuthStatus('authenticated')
       } else {
         setAuthStatus('unauthenticated')
-        router.replace('/')
+        router.push('/')
       }
     }, [])
 
