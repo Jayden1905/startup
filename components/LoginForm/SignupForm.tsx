@@ -1,7 +1,12 @@
 'use client'
 import { OAuthButtonGroup } from '@/components/LoginForm/OAuthButtonGroup'
 import { PasswordField } from '@/components/LoginForm/PasswordField'
-import { loginAtom, onSubmitAtom, onSubmitSuccessAtom } from '@/utils/store'
+import {
+  formValidationAtom,
+  loginAtom,
+  onSubmitAtom,
+  onSubmitSuccessAtom,
+} from '@/utils/store'
 import { CheckIcon } from '@chakra-ui/icons'
 import {
   Box,
@@ -23,42 +28,17 @@ import { useAtom } from 'jotai'
 import { ChangeEvent, useRef } from 'react'
 
 type Props = {
-  pageDescription: { title: string; subtitle: string }
-  title: string
-  forwardTo: string
-  forwardToPath: string
   handleSubmit: (email: string, password: string) => void
-  emailValidation: boolean
-  passwordValidation: boolean
-  setEmailValidation: (value: boolean) => void
-  setPasswordValidation: (value: boolean) => void
-  displayName: string
-  setDisplayName: (value: string) => void
-  displayNameValidation: boolean
-  setDisplayNameValidation: (value: boolean) => void
 }
 
-export default function SignupForm({
-  pageDescription,
-  title,
-  forwardTo,
-  forwardToPath,
-  handleSubmit,
-  emailValidation,
-  passwordValidation,
-  setEmailValidation,
-  setPasswordValidation,
-  displayName,
-  setDisplayName,
-  displayNameValidation,
-  setDisplayNameValidation,
-}: Props) {
+export default function SignupForm({ handleSubmit }: Props) {
   const [login, setLogin] = useAtom(loginAtom)
 
   const checkBoxRef = useRef<HTMLInputElement>(null)
 
   const [onSubmit] = useAtom(onSubmitAtom)
   const [onSubmitSuccess] = useAtom(onSubmitSuccessAtom)
+  const [formValidation, setFormValidation] = useAtom(formValidationAtom)
 
   return (
     <>
@@ -69,12 +49,12 @@ export default function SignupForm({
       >
         <Stack spacing="8" mb={'6'}>
           <Stack spacing={{ base: '2', md: '3' }} textAlign="center">
-            <Heading size={'lg'}>{pageDescription.title}</Heading>
+            <Heading size={'lg'}>Create a new account</Heading>
             <HStack spacing="1" justify="center">
-              <Text color="muted">{pageDescription.subtitle}</Text>
-              <Link href={forwardToPath}>
+              <Text color="muted">Already have an account?</Text>
+              <Link href={'/auth/login'}>
                 <Button variant="link" colorScheme="blue">
-                  {forwardTo}
+                  Sign in
                 </Button>
               </Link>
             </HStack>
@@ -89,54 +69,45 @@ export default function SignupForm({
         >
           <Stack spacing="6">
             <Stack spacing="5">
-              <FormControl isInvalid={displayNameValidation}>
+              <FormControl isInvalid={formValidation.usernmae}>
                 <FormLabel htmlFor="displayName">Name</FormLabel>
                 <Input
                   id="displayName"
                   type="displayName"
-                  value={displayName}
+                  value={login.username}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => {
                     if (e.target.value.length < 3) {
-                      setDisplayNameValidation(true)
+                      setFormValidation({ ...formValidation, usernmae: true })
                     } else {
-                      setDisplayNameValidation(false)
+                      setFormValidation({ ...formValidation, usernmae: false })
                     }
-                    setDisplayName(e.target.value)
+                    setLogin({ ...login, username: e.target.value })
                   }}
                 />
-                {displayNameValidation && (
+                {formValidation.usernmae && (
                   <FormErrorMessage>Invalid username</FormErrorMessage>
                 )}
               </FormControl>
-              <FormControl isInvalid={emailValidation}>
+              <FormControl isInvalid={formValidation.email}>
                 <FormLabel htmlFor="email">Email</FormLabel>
                 <Input
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      handleSubmit(login.email, login.password)
-                    }
-                  }}
                   id="email"
                   type="email"
                   value={login.email}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => {
                     if (!e.target.value.includes('@')) {
-                      setEmailValidation(true)
+                      setFormValidation({ ...formValidation, email: true })
                     } else {
-                      setEmailValidation(false)
+                      setFormValidation({ ...formValidation, email: false })
                     }
                     setLogin({ ...login, email: e.target.value })
                   }}
                 />
-                {emailValidation && (
+                {formValidation.email && (
                   <FormErrorMessage>Invalid email</FormErrorMessage>
                 )}
               </FormControl>
-              <PasswordField
-                handleSubmit={handleSubmit}
-                passwordValidation={passwordValidation}
-                setPasswordValidation={setPasswordValidation}
-              />
+              <PasswordField handleSubmit={handleSubmit} />
             </Stack>
             <HStack justify="space-between">
               <Checkbox ref={checkBoxRef} isChecked defaultChecked>
@@ -149,13 +120,11 @@ export default function SignupForm({
             <Stack spacing="6">
               <Button
                 isLoading={onSubmit}
-                loadingText={
-                  title === 'Sign in' ? 'Loggin in...' : 'Creating...'
-                }
+                loadingText={'Creating...'}
                 colorScheme="blue"
                 onClick={() => handleSubmit(login.email, login.password)}
               >
-                {onSubmitSuccess ? <CheckIcon /> : title}
+                {onSubmitSuccess ? <CheckIcon /> : 'Sign up'}
               </Button>
               <HStack>
                 <Divider />

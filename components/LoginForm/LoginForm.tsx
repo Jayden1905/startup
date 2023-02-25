@@ -1,7 +1,12 @@
 'use client'
 import { OAuthButtonGroup } from '@/components/LoginForm/OAuthButtonGroup'
 import { PasswordField } from '@/components/LoginForm/PasswordField'
-import { loginAtom, onSubmitAtom, onSubmitSuccessAtom } from '@/utils/store'
+import {
+  formValidationAtom,
+  loginAtom,
+  onSubmitAtom,
+  onSubmitSuccessAtom,
+} from '@/utils/store'
 import { CheckIcon } from '@chakra-ui/icons'
 import {
   Box,
@@ -23,34 +28,17 @@ import { useAtom } from 'jotai'
 import { ChangeEvent, useRef } from 'react'
 
 type Props = {
-  pageDescription: { title: string; subtitle: string }
-  title: string
-  forwardTo: string
-  forwardToPath: string
   handleSubmit: (email: string, password: string) => void
-  emailValidation: boolean
-  passwordValidation: boolean
-  setEmailValidation: (value: boolean) => void
-  setPasswordValidation: (value: boolean) => void
 }
 
-export default function LoginForm({
-  pageDescription,
-  title,
-  forwardTo,
-  forwardToPath,
-  handleSubmit,
-  emailValidation,
-  passwordValidation,
-  setEmailValidation,
-  setPasswordValidation,
-}: Props) {
+export default function LoginForm({ handleSubmit }: Props) {
   const [login, setLogin] = useAtom(loginAtom)
 
   const checkBoxRef = useRef<HTMLInputElement>(null)
 
   const [onSubmit] = useAtom(onSubmitAtom)
   const [onSubmitSuccess] = useAtom(onSubmitSuccessAtom)
+  const [formValidation, setFormValidation] = useAtom(formValidationAtom)
 
   return (
     <>
@@ -61,12 +49,12 @@ export default function LoginForm({
       >
         <Stack spacing="8" mb={'6'}>
           <Stack spacing={{ base: '2', md: '3' }} textAlign="center">
-            <Heading size={'lg'}>{pageDescription.title}</Heading>
+            <Heading size={'lg'}>Log in to your account</Heading>
             <HStack spacing="1" justify="center">
-              <Text color="muted">{pageDescription.subtitle}</Text>
-              <Link href={forwardToPath}>
+              <Text color="muted">Don't have an account?</Text>
+              <Link href="/auth/signup">
                 <Button variant="link" colorScheme="blue">
-                  {forwardTo}
+                  Sign up
                 </Button>
               </Link>
             </HStack>
@@ -81,7 +69,7 @@ export default function LoginForm({
         >
           <Stack spacing="6">
             <Stack spacing="5">
-              <FormControl isInvalid={emailValidation}>
+              <FormControl isInvalid={formValidation.email}>
                 <FormLabel htmlFor="email">Email</FormLabel>
                 <Input
                   id="email"
@@ -89,22 +77,18 @@ export default function LoginForm({
                   value={login.email}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => {
                     if (!e.target.value.includes('@')) {
-                      setEmailValidation(true)
+                      setFormValidation({ ...formValidation, email: true })
                     } else {
-                      setEmailValidation(false)
+                      setFormValidation({ ...formValidation, email: false })
                     }
                     setLogin({ ...login, email: e.target.value })
                   }}
                 />
-                {emailValidation && (
+                {formValidation.email && (
                   <FormErrorMessage>Invalid email</FormErrorMessage>
                 )}
               </FormControl>
-              <PasswordField
-                handleSubmit={handleSubmit}
-                passwordValidation={passwordValidation}
-                setPasswordValidation={setPasswordValidation}
-              />
+              <PasswordField handleSubmit={handleSubmit} />
             </Stack>
             <HStack justify="space-between">
               <Checkbox ref={checkBoxRef} isChecked defaultChecked>
@@ -117,13 +101,11 @@ export default function LoginForm({
             <Stack spacing="6">
               <Button
                 isLoading={onSubmit}
-                loadingText={
-                  title === 'Sign in' ? 'Loggin in...' : 'Creating...'
-                }
+                loadingText={'Loggin in...'}
                 colorScheme="blue"
                 onClick={() => handleSubmit(login.email, login.password)}
               >
-                {onSubmitSuccess ? <CheckIcon /> : title}
+                {onSubmitSuccess ? <CheckIcon /> : 'Sign in'}
               </Button>
               <HStack>
                 <Divider />

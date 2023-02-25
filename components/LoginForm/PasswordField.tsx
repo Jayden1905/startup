@@ -1,5 +1,5 @@
 'use client'
-import { loginAtom } from '@/utils/store'
+import { formValidationAtom, loginAtom } from '@/utils/store'
 import {
   FormControl,
   FormErrorMessage,
@@ -16,19 +16,14 @@ import { HiEye, HiEyeOff } from 'react-icons/hi'
 
 type Props = {
   handleSubmit: (email: string, password: string) => void
-  passwordValidation: boolean
-  setPasswordValidation: (value: boolean) => void
 }
 
-export const PasswordField = ({
-  handleSubmit,
-  passwordValidation,
-  setPasswordValidation,
-}: Props) => {
+export const PasswordField = ({ handleSubmit }: Props) => {
   const { isOpen, onToggle } = useDisclosure()
   const inputRef = useRef<HTMLInputElement>(null)
 
   const [login, setLogin] = useAtom(loginAtom)
+  const [formValidation, setFormValidation] = useAtom(formValidationAtom)
 
   const onClickReveal = () => {
     onToggle()
@@ -39,7 +34,7 @@ export const PasswordField = ({
 
   return (
     <>
-      <FormControl isInvalid={passwordValidation}>
+      <FormControl isInvalid={formValidation.password}>
         <FormLabel htmlFor="password">Password</FormLabel>
         <InputGroup>
           <InputRightElement>
@@ -64,15 +59,15 @@ export const PasswordField = ({
             value={login.password}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
               if (e.target.value.length < 6) {
-                setPasswordValidation(true)
+                setFormValidation({ ...formValidation, password: true })
               } else {
-                setPasswordValidation(false)
+                setFormValidation({ ...formValidation, password: false })
               }
               setLogin({ ...login, password: e.target.value })
             }}
           />
         </InputGroup>
-        {passwordValidation && (
+        {formValidation.password && (
           <FormErrorMessage>Invalid password</FormErrorMessage>
         )}
       </FormControl>

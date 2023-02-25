@@ -2,7 +2,12 @@
 import withoutAuth from '@/components/auth/withoutAuth'
 import LoginForm from '@/components/LoginForm/LoginForm'
 import { auth } from '@/utils/firebase'
-import { loginAtom, onSubmitAtom, onSubmitSuccessAtom } from '@/utils/store'
+import {
+  formValidationAtom,
+  loginAtom,
+  onSubmitAtom,
+  onSubmitSuccessAtom,
+} from '@/utils/store'
 import { useToast } from '@chakra-ui/react'
 import {
   fetchSignInMethodsForEmail,
@@ -10,27 +15,18 @@ import {
 } from 'firebase/auth'
 import { useAtom } from 'jotai'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { useAuthState } from 'react-firebase-hooks/auth'
+import { useEffect } from 'react'
 
 const LoginPage = () => {
   const [login, setLogin] = useAtom(loginAtom)
-  const [user] = useAuthState(auth)
 
   const router = useRouter()
 
   const toast = useToast()
 
-  const [emailValidation, setEmailValidation] = useState(false)
-  const [passwordValidation, setPasswordValidation] = useState(false)
-
   const [_onSubmit, setOnSubmit] = useAtom(onSubmitAtom)
   const [_onSubmitSuccess, setSubmitScueess] = useAtom(onSubmitSuccessAtom)
-
-  const pageDescription = {
-    title: 'Log in to your account',
-    subtitle: "Don't have an account?",
-  }
+  const [formValidation, setFormValidation] = useAtom(formValidationAtom)
 
   const handleSubmit = async (email: string, password: string) => {
     setOnSubmit(true)
@@ -39,15 +35,14 @@ const LoginPage = () => {
       !login.email.includes('@') ||
       login.password === ''
     ) {
-      setEmailValidation(true)
-      setPasswordValidation(true)
+      setFormValidation({ ...formValidation, email: true, password: true })
       setOnSubmit(false)
     } else {
       const users = await fetchSignInMethodsForEmail(auth, email)
 
       if (users.length === 0) {
         setOnSubmit(false)
-        setLogin({ email: '', password: '' })
+        setLogin({ ...login, email: '', password: '' })
         toast({
           position: 'top',
           title: "User doesn't exist. Please sign up.",
@@ -58,17 +53,18 @@ const LoginPage = () => {
       } else {
         try {
           setSubmitScueess(true)
+
           await signInWithEmailAndPassword(auth, email, password)
 
           setOnSubmit(false)
-          setLogin({ email: '', password: '' })
+          setLogin({ ...login, email: '', password: '' })
           router.push('/')
         } catch (error: any) {
           setSubmitScueess(false)
           setOnSubmit(false)
           if (error.code === 'auth/wrong-password') {
             setLogin({ ...login, password: '' })
-            setPasswordValidation(true)
+            setFormValidation({ ...formValidation, password: true })
           }
         }
       }
@@ -81,17 +77,7 @@ const LoginPage = () => {
 
   return (
     <>
-      <LoginForm
-        pageDescription={pageDescription}
-        title="Sign in"
-        forwardTo="Sing up"
-        forwardToPath="/auth/signup"
-        emailValidation={emailValidation}
-        setEmailValidation={setEmailValidation}
-        passwordValidation={passwordValidation}
-        setPasswordValidation={setPasswordValidation}
-        handleSubmit={handleSubmit}
-      />
+      <LoginForm handleSubmit={handleSubmit} />
     </>
   )
 }
