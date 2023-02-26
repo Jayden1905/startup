@@ -19,6 +19,7 @@
     "@types/react-dom": "18.0.11",
     "encoding": "^0.1.13",
     "firebase": "^9.17.1",
+    "formik": "^2.2.9",
     "framer-motion": "^9.0.7",
     "jotai": "^2.0.2",
     "next": "13.1.6",

@@ -2,12 +2,7 @@
 import withoutAuth from '@/components/auth/withoutAuth'
 import LoginForm from '@/components/LoginForm/LoginForm'
 import { auth } from '@/utils/firebase'
-import {
-  formValidationAtom,
-  loginAtom,
-  onSubmitAtom,
-  onSubmitSuccessAtom,
-} from '@/utils/store'
+import { onSubmitAtom, onSubmitSuccessAtom } from '@/utils/store'
 import { useToast } from '@chakra-ui/react'
 import {
   fetchSignInMethodsForEmail,
@@ -15,34 +10,24 @@ import {
 } from 'firebase/auth'
 import { useAtom } from 'jotai'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 
 const LoginPage = () => {
-  const [login, setLogin] = useAtom(loginAtom)
-
   const router = useRouter()
 
   const toast = useToast()
 
-  const [_onSubmit, setOnSubmit] = useAtom(onSubmitAtom)
-  const [_onSubmitSuccess, setSubmitScueess] = useAtom(onSubmitSuccessAtom)
-  const [formValidation, setFormValidation] = useAtom(formValidationAtom)
+  const [, setOnSubmit] = useAtom(onSubmitAtom)
+  const [, setSubmitsuccess] = useAtom(onSubmitSuccessAtom)
 
-  const handleSubmit = async (email: string, password: string) => {
-    setOnSubmit(true)
-    if (
-      login.email === '' ||
-      !login.email.includes('@') ||
-      login.password === ''
-    ) {
-      setFormValidation({ ...formValidation, email: true, password: true })
-      setOnSubmit(false)
-    } else {
-      const users = await fetchSignInMethodsForEmail(auth, email)
+  const fetchSignInMethods = useMemo(() => fetchSignInMethodsForEmail, [])
 
+  const handleSubmit = useCallback(
+    async (email: string, password: string) => {
+      setOnSubmit(true)
+
+      const users = await fetchSignInMethods(auth, email)
       if (users.length === 0) {
-        setOnSubmit(false)
-        setLogin({ ...login, email: '', password: '' })
         toast({
           position: 'top',
           title: "User doesn't exist. Please sign up.",
@@ -52,32 +37,34 @@ const LoginPage = () => {
         })
       } else {
         try {
-          setSubmitScueess(true)
-
+          setSubmitsuccess(true)
           await signInWithEmailAndPassword(auth, email, password)
-
-          setOnSubmit(false)
-          setLogin({ ...login, email: '', password: '' })
           router.push('/')
         } catch (error: any) {
-          setSubmitScueess(false)
-          setOnSubmit(false)
+          setSubmitsuccess(false)
           if (error.code === 'auth/wrong-password') {
-            setLogin({ ...login, password: '' })
-            setFormValidation({ ...formValidation, password: true })
+            toast({
+              position: 'top',
+              title: 'Wrong password. Please try again.',
+              status: 'error',
+              isClosable: true,
+              duration: 3000,
+            })
           }
         }
       }
-    }
-  }
+      setOnSubmit(false)
+    },
+    [auth, router]
+  )
 
   useEffect(() => {
-    setSubmitScueess(false)
+    setSubmitsuccess(false)
   }, [])
 
   return (
     <>
-      <LoginForm handleSubmit={handleSubmit} />
+      <LoginForm submitForm={handleSubmit} />
     </>
   )
 }

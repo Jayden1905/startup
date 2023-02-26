@@ -2,12 +2,7 @@
 import withoutAuth from '@/components/auth/withoutAuth'
 import SignupForm from '@/components/LoginForm/SignupForm'
 import { auth } from '@/utils/firebase'
-import {
-  formValidationAtom,
-  loginAtom,
-  onSubmitAtom,
-  onSubmitSuccessAtom,
-} from '@/utils/store'
+import { onSubmitAtom, onSubmitSuccessAtom } from '@/utils/store'
 import { useToast } from '@chakra-ui/react'
 import {
   createUserWithEmailAndPassword,
@@ -16,35 +11,23 @@ import {
 } from 'firebase/auth'
 import { useAtom } from 'jotai'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 
 const SignupPage = () => {
   const router = useRouter()
 
   const toast = useToast()
 
-  const [login, setLogin] = useAtom(loginAtom)
   const [_onSubmit, setOnSubmit] = useAtom(onSubmitAtom)
   const [_onSubmitSuccess, setSubmitScueess] = useAtom(onSubmitSuccessAtom)
-  const [formValidation, setFormValidation] = useAtom(formValidationAtom)
 
-  const handleSubmit = async (email: string, password: string) => {
-    setOnSubmit(true)
-    if (
-      login.email === '' ||
-      !login.email.includes('@') ||
-      login.password === '' ||
-      login.username === ''
-    ) {
-      setFormValidation({
-        ...formValidation,
-        email: true,
-        password: true,
-        usernmae: true,
-      })
-      setOnSubmit(false)
-    } else {
-      const users = await fetchSignInMethodsForEmail(auth, email)
+  const fetchSignInMethods = useMemo(() => fetchSignInMethodsForEmail, [])
+
+  const handleSubmit = useCallback(
+    async (username: string, email: string, password: string) => {
+      setOnSubmit(true)
+
+      const users = await fetchSignInMethods(auth, email)
 
       if (users.length === 0) {
         try {
@@ -57,10 +40,9 @@ const SignupPage = () => {
 
           setOnSubmit(false)
           await updateProfile(result.user, {
-            displayName: login.username,
+            displayName: username,
           })
 
-          setLogin({ username: '', email: '', password: '' })
           router.push('/')
         } catch (error) {
           console.log(error)
@@ -75,10 +57,10 @@ const SignupPage = () => {
           isClosable: true,
           duration: 3000,
         })
-        setLogin({ username: '', email: '', password: '' })
       }
-    }
-  }
+    },
+    [auth, router]
+  )
 
   useEffect(() => {
     setSubmitScueess(false)
@@ -86,7 +68,7 @@ const SignupPage = () => {
 
   return (
     <>
-      <SignupForm handleSubmit={handleSubmit} />
+      <SignupForm submitForm={handleSubmit} />
     </>
   )
 }

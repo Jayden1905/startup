@@ -1,5 +1,4 @@
 'use client'
-import { formValidationAtom, loginAtom } from '@/utils/store'
 import {
   FormControl,
   FormErrorMessage,
@@ -10,20 +9,18 @@ import {
   InputRightElement,
   useDisclosure,
 } from '@chakra-ui/react'
-import { useAtom } from 'jotai'
-import { ChangeEvent, useRef } from 'react'
+import { Field } from 'formik'
+import { useRef } from 'react'
 import { HiEye, HiEyeOff } from 'react-icons/hi'
 
 type Props = {
-  handleSubmit: (email: string, password: string) => void
+  errors: any
+  touched: any
 }
 
-export const PasswordField = ({ handleSubmit }: Props) => {
+export const PasswordField = ({ errors, touched }: Props) => {
   const { isOpen, onToggle } = useDisclosure()
   const inputRef = useRef<HTMLInputElement>(null)
-
-  const [login, setLogin] = useAtom(loginAtom)
-  const [formValidation, setFormValidation] = useAtom(formValidationAtom)
 
   const onClickReveal = () => {
     onToggle()
@@ -34,7 +31,7 @@ export const PasswordField = ({ handleSubmit }: Props) => {
 
   return (
     <>
-      <FormControl isInvalid={formValidation.password}>
+      <FormControl isInvalid={!!errors.password && touched.password}>
         <FormLabel htmlFor="password">Password</FormLabel>
         <InputGroup>
           <InputRightElement>
@@ -45,31 +42,23 @@ export const PasswordField = ({ handleSubmit }: Props) => {
               onClick={onClickReveal}
             />
           </InputRightElement>
-          <Input
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                handleSubmit(login.email, login.password)
-              }
-            }}
+          <Field
+            as={Input}
             id="password"
             ref={inputRef}
             name="password"
             type={isOpen ? 'text' : 'password'}
             autoComplete="current-password"
-            value={login.password}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => {
-              if (e.target.value.length < 6) {
-                setFormValidation({ ...formValidation, password: true })
-              } else {
-                setFormValidation({ ...formValidation, password: false })
+            validate={(value: string) => {
+              if (value.length === 0) {
+                return 'Password is required'
+              } else if (value.length < 8) {
+                return 'Password must be at least 8 characters'
               }
-              setLogin({ ...login, password: e.target.value })
             }}
           />
         </InputGroup>
-        {formValidation.password && (
-          <FormErrorMessage>Invalid password</FormErrorMessage>
-        )}
+        <FormErrorMessage>{errors.password}</FormErrorMessage>
       </FormControl>
     </>
   )

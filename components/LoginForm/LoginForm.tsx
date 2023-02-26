@@ -1,12 +1,6 @@
 'use client'
 import { OAuthButtonGroup } from '@/components/LoginForm/OAuthButtonGroup'
-import { PasswordField } from '@/components/LoginForm/PasswordField'
-import {
-  formValidationAtom,
-  loginAtom,
-  onSubmitAtom,
-  onSubmitSuccessAtom,
-} from '@/utils/store'
+import { onSubmitAtom, onSubmitSuccessAtom } from '@/utils/store'
 import { CheckIcon } from '@chakra-ui/icons'
 import {
   Box,
@@ -19,26 +13,39 @@ import {
   FormLabel,
   Heading,
   HStack,
+  IconButton,
   Input,
+  InputGroup,
+  InputRightElement,
   Link,
   Stack,
   Text,
+  useDisclosure,
 } from '@chakra-ui/react'
+import { Field, Formik } from 'formik'
 import { useAtom } from 'jotai'
-import { ChangeEvent, useRef } from 'react'
+import { useRef } from 'react'
+import { HiEye, HiEyeOff } from 'react-icons/hi'
 
 type Props = {
-  handleSubmit: (email: string, password: string) => void
+  submitForm: (email: string, password: string) => void
 }
 
-export default function LoginForm({ handleSubmit }: Props) {
-  const [login, setLogin] = useAtom(loginAtom)
-
+export default function LoginForm({ submitForm }: Props) {
   const checkBoxRef = useRef<HTMLInputElement>(null)
 
   const [onSubmit] = useAtom(onSubmitAtom)
   const [onSubmitSuccess] = useAtom(onSubmitSuccessAtom)
-  const [formValidation, setFormValidation] = useAtom(formValidationAtom)
+
+  const { isOpen, onToggle } = useDisclosure()
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const onClickReveal = () => {
+    onToggle()
+    if (inputRef.current) {
+      inputRef.current.focus({ preventScroll: true })
+    }
+  }
 
   return (
     <>
@@ -67,56 +74,98 @@ export default function LoginForm({ handleSubmit }: Props) {
           boxShadow={{ base: 'none', sm: 'lg' }}
           borderRadius={{ base: 'none', sm: 'xl' }}
         >
-          <Stack spacing="6">
-            <Stack spacing="5">
-              <FormControl isInvalid={formValidation.email}>
-                <FormLabel htmlFor="email">Email</FormLabel>
-                <Input
-                  id="email"
-                  type="email"
-                  value={login.email}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                    if (!e.target.value.includes('@')) {
-                      setFormValidation({ ...formValidation, email: true })
-                    } else {
-                      setFormValidation({ ...formValidation, email: false })
-                    }
-                    setLogin({ ...login, email: e.target.value })
-                  }}
-                />
-                {formValidation.email && (
-                  <FormErrorMessage>Invalid email</FormErrorMessage>
-                )}
-              </FormControl>
-              <PasswordField handleSubmit={handleSubmit} />
-            </Stack>
-            <HStack justify="space-between">
-              <Checkbox ref={checkBoxRef} isChecked defaultChecked>
-                Remember me
-              </Checkbox>
-              <Button variant="link" colorScheme="blue" size="sm">
-                Forgot password?
-              </Button>
-            </HStack>
-            <Stack spacing="6">
-              <Button
-                isLoading={onSubmit}
-                loadingText={'Loggin in...'}
-                colorScheme="blue"
-                onClick={() => handleSubmit(login.email, login.password)}
-              >
-                {onSubmitSuccess ? <CheckIcon /> : 'Sign in'}
-              </Button>
-              <HStack>
-                <Divider />
-                <Text fontSize="sm" whiteSpace="nowrap" color="muted">
-                  or continue with
-                </Text>
-                <Divider />
-              </HStack>
-              <OAuthButtonGroup />
-            </Stack>
-          </Stack>
+          <Formik
+            initialValues={{
+              email: '',
+              password: '',
+            }}
+            onSubmit={(values) => submitForm(values.email, values.password)}
+          >
+            {({ handleSubmit, errors, touched, values }) => (
+              <form action="submit" onSubmit={handleSubmit}>
+                <Stack spacing="6">
+                  <Stack spacing="5">
+                    <FormControl isInvalid={!!errors.email && touched.email}>
+                      <FormLabel htmlFor="email">Email</FormLabel>
+                      <Field
+                        as={Input}
+                        id="email"
+                        type="email"
+                        name="email"
+                        validate={(value: string) => {
+                          if (value.length === 0) {
+                            return 'Email is required'
+                          } else if (!value.includes('@')) {
+                            return 'Email is invalid'
+                          }
+                        }}
+                      />
+                      <FormErrorMessage>{errors.email}</FormErrorMessage>
+                    </FormControl>
+                    <FormControl
+                      isInvalid={!!errors.password && touched.password}
+                    >
+                      <FormLabel htmlFor="password">Password</FormLabel>
+                      <InputGroup>
+                        <InputRightElement>
+                          <IconButton
+                            variant="link"
+                            aria-label={
+                              isOpen ? 'Mask password' : 'Reveal password'
+                            }
+                            icon={isOpen ? <HiEyeOff /> : <HiEye />}
+                            onClick={onClickReveal}
+                          />
+                        </InputRightElement>
+                        <Field
+                          as={Input}
+                          id="password"
+                          ref={inputRef}
+                          name="password"
+                          type={isOpen ? 'text' : 'password'}
+                          autoComplete="current-password"
+                          validate={(value: string) => {
+                            if (value.length === 0) {
+                              return 'Password is required'
+                            } else if (value.length < 8) {
+                              return 'Password must be at least 8 characters'
+                            }
+                          }}
+                        />
+                      </InputGroup>
+                      <FormErrorMessage>{errors.password}</FormErrorMessage>
+                    </FormControl>
+                  </Stack>
+                  <HStack justify="space-between">
+                    <Checkbox ref={checkBoxRef} isChecked defaultChecked>
+                      Remember me
+                    </Checkbox>
+                    <Button variant="link" colorScheme="blue" size="sm">
+                      Forgot password?
+                    </Button>
+                  </HStack>
+                  <Stack spacing="6">
+                    <Button
+                      isLoading={onSubmit}
+                      loadingText={'Logging in...'}
+                      colorScheme="blue"
+                      type="submit"
+                    >
+                      {onSubmitSuccess ? <CheckIcon /> : 'Login'}
+                    </Button>
+                    <HStack>
+                      <Divider />
+                      <Text fontSize="sm" whiteSpace="nowrap" color="muted">
+                        or continue with
+                      </Text>
+                      <Divider />
+                    </HStack>
+                    <OAuthButtonGroup />
+                  </Stack>
+                </Stack>
+              </form>
+            )}
+          </Formik>
         </Box>
       </Container>
     </>
