@@ -22,29 +22,26 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react'
-import { Field, Formik } from 'formik'
+import { Field, Formik, FormikHelpers } from 'formik'
 import { useAtom } from 'jotai'
-import { useRef } from 'react'
 import { HiEye, HiEyeOff } from 'react-icons/hi'
 
 type Props = {
-  submitForm: (email: string, password: string) => void
+  submitForm: (
+    email: string,
+    password: string,
+    actions: FormikHelpers<{ email: string; password: string }>
+  ) => void
 }
 
 export default function LoginForm({ submitForm }: Props) {
-  const checkBoxRef = useRef<HTMLInputElement>(null)
-
   const [onSubmit] = useAtom(onSubmitAtom)
   const [onSubmitSuccess] = useAtom(onSubmitSuccessAtom)
 
   const { isOpen, onToggle } = useDisclosure()
-  const inputRef = useRef<HTMLInputElement>(null)
 
   const onClickReveal = () => {
     onToggle()
-    if (inputRef.current) {
-      inputRef.current.focus({ preventScroll: true })
-    }
   }
 
   return (
@@ -79,9 +76,11 @@ export default function LoginForm({ submitForm }: Props) {
               email: '',
               password: '',
             }}
-            onSubmit={(values) => submitForm(values.email, values.password)}
+            onSubmit={(values, actions) => {
+              submitForm(values.email, values.password, actions)
+            }}
           >
-            {({ handleSubmit, errors, touched, values }) => (
+            {({ handleSubmit, errors, touched }) => (
               <form action="submit" onSubmit={handleSubmit}>
                 <Stack spacing="6">
                   <Stack spacing="5">
@@ -120,7 +119,6 @@ export default function LoginForm({ submitForm }: Props) {
                         <Field
                           as={Input}
                           id="password"
-                          ref={inputRef}
                           name="password"
                           type={isOpen ? 'text' : 'password'}
                           autoComplete="current-password"
@@ -137,7 +135,7 @@ export default function LoginForm({ submitForm }: Props) {
                     </FormControl>
                   </Stack>
                   <HStack justify="space-between">
-                    <Checkbox ref={checkBoxRef} isChecked defaultChecked>
+                    <Checkbox isChecked defaultChecked>
                       Remember me
                     </Checkbox>
                     <Button variant="link" colorScheme="blue" size="sm">

@@ -9,9 +9,10 @@ import {
   fetchSignInMethodsForEmail,
   updateProfile,
 } from 'firebase/auth'
+import { FormikHelpers } from 'formik'
 import { useAtom } from 'jotai'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect } from 'react'
 
 const SignupPage = () => {
   const router = useRouter()
@@ -21,13 +22,20 @@ const SignupPage = () => {
   const [_onSubmit, setOnSubmit] = useAtom(onSubmitAtom)
   const [_onSubmitSuccess, setSubmitScueess] = useAtom(onSubmitSuccessAtom)
 
-  const fetchSignInMethods = useMemo(() => fetchSignInMethodsForEmail, [])
-
   const handleSubmit = useCallback(
-    async (username: string, email: string, password: string) => {
+    async (
+      username: string,
+      email: string,
+      password: string,
+      actions: FormikHelpers<{
+        username: string
+        email: string
+        password: string
+      }>
+    ) => {
       setOnSubmit(true)
 
-      const users = await fetchSignInMethods(auth, email)
+      const users = await fetchSignInMethodsForEmail(auth, email)
 
       if (users.length === 0) {
         try {
@@ -57,6 +65,7 @@ const SignupPage = () => {
           isClosable: true,
           duration: 3000,
         })
+        actions.resetForm()
       }
     },
     [auth, router]

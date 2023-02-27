@@ -21,13 +21,21 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react'
-import { Field, Formik } from 'formik'
+import { Field, Formik, FormikHelpers } from 'formik'
 import { useAtom } from 'jotai'
-import { useRef } from 'react'
 import { HiEye, HiEyeOff } from 'react-icons/hi'
 
 type Props = {
-  submitForm: (username: string, email: string, password: string) => void
+  submitForm: (
+    username: string,
+    email: string,
+    password: string,
+    actions: FormikHelpers<{
+      username: string
+      email: string
+      password: string
+    }>
+  ) => void
 }
 
 export default function SignupForm({ submitForm }: Props) {
@@ -35,13 +43,9 @@ export default function SignupForm({ submitForm }: Props) {
   const [onSubmitSuccess] = useAtom(onSubmitSuccessAtom)
 
   const { isOpen, onToggle } = useDisclosure()
-  const inputRef = useRef<HTMLInputElement>(null)
 
   const onClickReveal = () => {
     onToggle()
-    if (inputRef.current) {
-      inputRef.current.focus({ preventScroll: true })
-    }
   }
 
   return (
@@ -77,8 +81,13 @@ export default function SignupForm({ submitForm }: Props) {
               email: '',
               password: '',
             }}
-            onSubmit={(values) =>
-              submitForm(values.username, values.email, values.password)
+            onSubmit={(values, actions) =>
+              submitForm(
+                values.username,
+                values.email,
+                values.password,
+                actions
+              )
             }
           >
             {({ handleSubmit, errors, touched }) => (
@@ -139,7 +148,6 @@ export default function SignupForm({ submitForm }: Props) {
                         <Field
                           as={Input}
                           id="password"
-                          ref={inputRef}
                           name="password"
                           type={isOpen ? 'text' : 'password'}
                           autoComplete="current-password"

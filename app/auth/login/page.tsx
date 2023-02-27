@@ -8,9 +8,10 @@ import {
   fetchSignInMethodsForEmail,
   signInWithEmailAndPassword,
 } from 'firebase/auth'
+import { FormikHelpers } from 'formik'
 import { useAtom } from 'jotai'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect } from 'react'
 
 const LoginPage = () => {
   const router = useRouter()
@@ -20,13 +21,15 @@ const LoginPage = () => {
   const [, setOnSubmit] = useAtom(onSubmitAtom)
   const [, setSubmitsuccess] = useAtom(onSubmitSuccessAtom)
 
-  const fetchSignInMethods = useMemo(() => fetchSignInMethodsForEmail, [])
-
   const handleSubmit = useCallback(
-    async (email: string, password: string) => {
+    async (
+      email: string,
+      password: string,
+      actions: FormikHelpers<{ email: string; password: string }>
+    ) => {
       setOnSubmit(true)
 
-      const users = await fetchSignInMethods(auth, email)
+      const users = await fetchSignInMethodsForEmail(auth, email)
       if (users.length === 0) {
         toast({
           position: 'top',
@@ -43,6 +46,7 @@ const LoginPage = () => {
         } catch (error: any) {
           setSubmitsuccess(false)
           if (error.code === 'auth/wrong-password') {
+            actions.setErrors({ password: 'Incorrect password' })
             toast({
               position: 'top',
               title: 'Wrong password. Please try again.',
@@ -50,6 +54,8 @@ const LoginPage = () => {
               isClosable: true,
               duration: 3000,
             })
+          } else {
+            console.log(error)
           }
         }
       }
