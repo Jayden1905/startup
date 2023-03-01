@@ -48,6 +48,30 @@ export default function SignupForm({ submitForm }: Props) {
     onToggle()
   }
 
+  const emailValidation = (value: string) => {
+    if (value.length === 0) {
+      return 'Email is required'
+    } else if (!value.includes('@')) {
+      return 'Email is invalid'
+    }
+  }
+
+  const usernameValidation = (value: string) => {
+    if (value.length === 0) {
+      return 'Username is required'
+    } else if (value.length < 3) {
+      return 'Username must be at least 3 characters'
+    }
+  }
+
+  const passwordValidation = (value: string) => {
+    if (value.length === 0) {
+      return 'Email is required'
+    } else if (!value.includes('@')) {
+      return 'Email is invalid'
+    }
+  }
+
   return (
     <>
       <Container
@@ -103,13 +127,7 @@ export default function SignupForm({ submitForm }: Props) {
                         id="username"
                         name="username"
                         type="username"
-                        validate={(value: string) => {
-                          if (value.length === 0) {
-                            return 'Username is required'
-                          } else if (value.length < 3) {
-                            return 'Username must be at least 3 characters'
-                          }
-                        }}
+                        validate={usernameValidation}
                       />
                       <FormErrorMessage>{errors.username}</FormErrorMessage>
                     </FormControl>
@@ -120,13 +138,7 @@ export default function SignupForm({ submitForm }: Props) {
                         id="email"
                         type="email"
                         name="email"
-                        validate={(value: string) => {
-                          if (value.length === 0) {
-                            return 'Email is required'
-                          } else if (!value.includes('@')) {
-                            return 'Email is invalid'
-                          }
-                        }}
+                        validate={emailValidation}
                       />
                       <FormErrorMessage>{errors.email}</FormErrorMessage>
                     </FormControl>
@@ -151,13 +163,7 @@ export default function SignupForm({ submitForm }: Props) {
                           name="password"
                           type={isOpen ? 'text' : 'password'}
                           autoComplete="current-password"
-                          validate={(value: string) => {
-                            if (value.length === 0) {
-                              return 'Password is required'
-                            } else if (value.length < 8) {
-                              return 'Password must be at least 8 characters'
-                            }
-                          }}
+                          validate={passwordValidation}
                         />
                       </InputGroup>
                       <FormErrorMessage>{errors.password}</FormErrorMessage>

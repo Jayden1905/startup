@@ -18,7 +18,7 @@ interface Props {
 const MainLayout = ({ children }: Props) => {
   const [_user, loading] = useAuthState(auth)
   return (
-    <main>
+    <div>
       <ColorModeScript initialColorMode={theme.config.initialColorMode} />
       <ChakraProvider theme={theme}>
         {loading ? (
@@ -36,7 +36,7 @@ const MainLayout = ({ children }: Props) => {
           </Container>
         )}
       </ChakraProvider>
-    </main>
+    </div>
   )
 }
 
