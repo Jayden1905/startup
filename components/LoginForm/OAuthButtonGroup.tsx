@@ -23,17 +23,17 @@ export const OAuthButtonGroup = () => {
   const providers = [
     {
       name: 'Google',
-      icon: <GoogleIcon boxSize="5" />,
+      icon: <GoogleIcon boxSize='5' />,
       provider: new GoogleAuthProvider(),
     },
     {
       name: 'FaceBook',
-      icon: <FaceBookIcon boxSize="5" />,
+      icon: <FaceBookIcon boxSize='5' />,
       provider: new FacebookAuthProvider(),
     },
     {
       name: 'GitHub',
-      icon: <GitHubIcon boxSize="5" />,
+      icon: <GitHubIcon boxSize='5' />,
       provider: new GithubAuthProvider(),
     },
   ]
@@ -95,9 +95,9 @@ export const OAuthButtonGroup = () => {
     }
   }
   return (
-    <ButtonGroup variant="outline" spacing="4" width="full">
+    <ButtonGroup variant='outline' spacing='4' width='full'>
       {providers.map(({ name, icon, provider }) => (
-        <Button key={name} width="full" onClick={() => authLogin(provider)}>
+        <Button key={name} width='full' onClick={() => authLogin(provider)}>
           <VisuallyHidden>Sign in with {name}</VisuallyHidden>
           {icon}
         </Button>

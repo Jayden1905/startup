@@ -25,7 +25,7 @@ export const NavBar = () => {
   const router = useRouter()
 
   return (
-    <HStack justifyContent={'space-between'} alignItems="center">
+    <HStack justifyContent={'space-between'} alignItems='center'>
       <CharLink
         style={{ fontSize: '1.5rem', textDecoration: 'none' }}
         href={'/'}
@@ -46,7 +46,7 @@ export const NavBar = () => {
               <Avatar
                 name={auth.currentUser?.displayName!}
                 src={auth.currentUser?.photoURL!}
-                size="sm"
+                size='sm'
               />
             </MenuButton>
             <MenuList fontSize={'15px'}>
@@ -75,7 +75,7 @@ export const NavBar = () => {
           </Menu>
         ) : (
           <Link href={'auth/signup'}>
-            <Button colorScheme={'blue'} size="sm" rounded={'md'}>
+            <Button colorScheme={'blue'} size='sm' rounded={'md'}>
               Join Now
             </Button>
           </Link>
