@@ -1,4 +1,5 @@
 'use client'
+
 import { auth } from '@/utils/firebase'
 import { MoonIcon, SunIcon } from '@chakra-ui/icons'
 import {
